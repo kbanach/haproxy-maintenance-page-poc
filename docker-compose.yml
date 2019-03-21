@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  app1:
+    build:
+      context: ./serv-1/
+    command: node index.js
+    environment:
+      APP_PORT: 3000
+    ports:
+    - "3000"
+
+  app2:
+    build:
+      context: ./serv-2/
+    command: node index.js
+    environment:
+      APP_PORT: 3000
+    ports:
+    - "3000"
+
+  maintenance:
+    build:
+      context: ./maintenance/
+    command: node index.js
+    environment:
+      APP_PORT: 3000
+    expose:
+    - "3000"
+
+  proxy:
+    links:
+    - app1
+    - app2
+    - maintenance
+    build:
+      context: ./haproxy-conf/
+    ports:
+    - "80:80"
+    expose:
+    - "80"
+
