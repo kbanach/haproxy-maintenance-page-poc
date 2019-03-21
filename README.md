@@ -15,7 +15,7 @@ Running
 It is (or at least, should be) as easy as running in the root of the project:
 
 ```bash
-$ docker-compose up
+docker-compose up
 ```
 
 And then simply open the [localhost](http://localhost/) in your default browser
@@ -35,11 +35,11 @@ docker ps -q --filter name="poc_proxy" | awk '{print $0" sh"}' | xargs -o docker
 It will connect you with the proxy container. Then, inside the container paste:
 
 ```bash
-$ echo "disable server web_backends/app1" | socat /var/run/haproxy.sock stdio
+echo "disable server web_backends/app1" | socat /var/run/haproxy.sock stdio
 ```
 and
 ```bash
-$ echo "disable server web_backends/app2" | socat /var/run/haproxy.sock stdio
+echo "disable server web_backends/app2" | socat /var/run/haproxy.sock stdio
 ```
 
 If you go back to the terminal with running `docker-compose up`, you'll see log about disabling both of the backends.
