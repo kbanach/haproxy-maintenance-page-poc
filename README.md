@@ -23,23 +23,14 @@ And then simply open the [localhost](http://localhost/) in your default browser
 If all runs fine, on every refresh of the page you should see "Server one" or "Server Two" (depends on which backend answered)
 
 
+
 Maintenance mode ON
 -------------------
 
 When `docker-compose` is running fine, in different terminal tab run:
 
 ```bash
-docker ps -q --filter name="poc_proxy" | awk '{print $0" sh"}' | xargs -o docker exec -it
-```
-
-It will connect you with the proxy container. Then, inside the container paste:
-
-```bash
-echo "disable server web_backends/app1" | socat /var/run/haproxy.sock stdio
-```
-and
-```bash
-echo "disable server web_backends/app2" | socat /var/run/haproxy.sock stdio
+./maintenanceModeOn.sh
 ```
 
 If you go back to the terminal with running `docker-compose up`, you'll see log about disabling both of the backends.
@@ -50,9 +41,17 @@ When you'll go to [localhost](http://localhost/) now, you should see the respons
 Maintenance mode OFF
 --------------------
 
-Steps are almost the same as turning maintenance on, but instead of `disable server ...` you should `enable` it:
+Just run:
 
 ```bash
-echo "enable server web_backends/app1" | socat /var/run/haproxy.sock stdio
-echo "enable server web_backends/app2" | socat /var/run/haproxy.sock stdio
+./maintenanceModeOff.sh
 ```
+
+
+Tech details
+------------
+
+The `maintenanceModeOn.sh`/`maintenanceModeOff.sh` scrips are just calling same named scrips inside of proxy container. Inside of them (in `haproxy-conf/maintenanceModeO*.sh`) we're using unix socket to [disable](http://cbonte.github.io/haproxy-dconv/1.9/management.html#9.3-disable%20server)/[enable](http://cbonte.github.io/haproxy-dconv/1.9/management.html#9.3-enable%20server) backends called `app1` and `app2`.
+
+When they are unavailable, HAProxy is using the [backup server](http://cbonte.github.io/haproxy-dconv/1.9/configuration.html#5.2-backup), which we've configured as `maintenance` backend (have a look into `haproxy-conf/haproxy.cfg` file).
+
